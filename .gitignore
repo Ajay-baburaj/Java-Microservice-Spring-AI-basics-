@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+
+# Secrets — keep the real Groq key out of git (.env.example is committed instead)
+.env
+**/.env
+
+# Build output
+target/
+build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Generated / local-only
+HELP.md
+.github/modernize/
+**/.github/modernize/
+*.pdf

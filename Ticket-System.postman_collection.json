@@ -1,0 +1,182 @@
+{
+  "info": {
+    "name": "Ticket System",
+    "description": "Ticket Service (port 8080) + AI Classifier Service (port 8090).\nCreate Ticket calls the classifier, which needs GROQ_API_KEY set on the classifier service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "ticketBaseUrl", "value": "http://localhost:8080" },
+    { "key": "classifierBaseUrl", "value": "http://localhost:8090" },
+    { "key": "ticketId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Ticket Service",
+      "item": [
+        {
+          "name": "Create Ticket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('ticketId', pm.response.json().id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Charged twice this month\",\n  \"description\": \"I was billed twice for my subscription in October. Please refund the duplicate charge.\",\n  \"requesterEmail\": \"customer@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{ticketBaseUrl}}/api/tickets",
+              "host": ["{{ticketBaseUrl}}"],
+              "path": ["api", "tickets"]
+            }
+          }
+        },
+        {
+          "name": "Create Ticket - Validation Error (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"\",\n  \"description\": \"Missing subject and bad email\",\n  \"requesterEmail\": \"not-an-email\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{ticketBaseUrl}}/api/tickets",
+              "host": ["{{ticketBaseUrl}}"],
+              "path": ["api", "tickets"]
+            }
+          }
+        },
+        {
+          "name": "Get Ticket by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ticketBaseUrl}}/api/tickets/{{ticketId}}",
+              "host": ["{{ticketBaseUrl}}"],
+              "path": ["api", "tickets", "{{ticketId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Ticket - Not Found (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ticketBaseUrl}}/api/tickets/99999",
+              "host": ["{{ticketBaseUrl}}"],
+              "path": ["api", "tickets", "99999"]
+            }
+          }
+        },
+        {
+          "name": "List Tickets (paged)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ticketBaseUrl}}/api/tickets?page=0&size=20&sort=createdAt,desc",
+              "host": ["{{ticketBaseUrl}}"],
+              "path": ["api", "tickets"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "sort", "value": "createdAt,desc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Ticket Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{ticketBaseUrl}}/api/tickets/{{ticketId}}/status",
+              "host": ["{{ticketBaseUrl}}"],
+              "path": ["api", "tickets", "{{ticketId}}", "status"]
+            },
+            "description": "Allowed values: OPEN, IN_PROGRESS, RESOLVED, CLOSED"
+          }
+        },
+        {
+          "name": "Delete Ticket",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{ticketBaseUrl}}/api/tickets/{{ticketId}}",
+              "host": ["{{ticketBaseUrl}}"],
+              "path": ["api", "tickets", "{{ticketId}}"]
+            }
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ticketBaseUrl}}/actuator/health",
+              "host": ["{{ticketBaseUrl}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Classifier Service",
+      "item": [
+        {
+          "name": "Classify Ticket",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Cannot log in\",\n  \"description\": \"I reset my password but still get 'invalid credentials'. I need access urgently for a client demo.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{classifierBaseUrl}}/api/classify",
+              "host": ["{{classifierBaseUrl}}"],
+              "path": ["api", "classify"]
+            }
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{classifierBaseUrl}}/actuator/health",
+              "host": ["{{classifierBaseUrl}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
