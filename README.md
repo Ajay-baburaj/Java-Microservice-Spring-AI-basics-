@@ -244,6 +244,11 @@ Import [`Ticket-System.postman_collection.json`](Ticket-System.postman_collectio
 
 ---
 
+## Learning list
+
+- [**LEARNING_LIST.md**](LEARNING_LIST.md) ([PDF](docs/Combined_Learning_List.pdf)): a combined study guide for both services. It goes file by file in the order a ticket flows through the system, marks interview-favorite topics, and ends with a table of real bugs to fix as exercises.
+- [Ticket_Service_Learning_List.pdf](ticket-service/Ticket_Service_Learning_List.pdf): the original ticket-service-only list.
+
 ## What this project covers
 
 - Splitting a feature into two independently deployable Spring Boot services
